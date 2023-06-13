@@ -2,13 +2,10 @@
 # -*- coding: UTF-8 -*-
 
 
-import pyspider
+from pyspider.libs.base_handler import *
 
 
 import monitor
 
-
 if __name__ == '__main__':
-    print('webcrawler <scarab> run')
-
-    
+    print('----- spider run -----')
