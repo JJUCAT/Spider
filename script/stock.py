@@ -3,8 +3,11 @@
 
 
 class Stock:
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
+    def __init__(self, id, code, name):
+        self.id = id # 深股或沪股
+        self.code = code # 股票代码
+        self.name = name # 股票名
+
+        
 
     

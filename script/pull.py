@@ -2,7 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 
-
+import akshare as ak
+import numpy as np
+import os
 import pandas as pd
 import requests
 
@@ -21,18 +23,32 @@ def gen_secid(stock_code):
     '''
     # 沪市指数
     if stock_code[:3] == '000':
+        print('沪市指数')
         return f'1.{stock_code}'
     # 深证指数
     if stock_code[:3] == '399':
+        print('深证指数')
         return f'0.{stock_code}'
     # 沪市股票
     if stock_code[0] != '6':
+        print('沪市股票')
         return f'0.{stock_code}'
     # 深市股票
+    print('深市股票')
     return f'1.{stock_code}'
 
 
-def get_history_bill(stock_code):
+def gen_secid_new(stock_code, id):
+    # 沪市股票
+    if id == 'h':
+        print('沪市股票')
+        return f'0.{stock_code}'
+    # 深市股票
+    print('深市股票')
+    return f'1.{stock_code}'
+
+
+def get_history_bill(stock_code,id):
     '''
     获取多日单子数据
     -
@@ -70,7 +86,8 @@ def get_history_bill(stock_code):
     fields = list(EastmoneyBills.keys())
     columns = list(EastmoneyBills.values())
     fields2 = ",".join(fields)
-    secid = gen_secid(stock_code)
+    # secid = gen_secid(stock_code)
+    secid = gen_secid_new(stock_code,id)
     params = (
         ('lmt', '100000'),
         ('klt', '101'),
@@ -109,13 +126,54 @@ def get_history_bill(stock_code):
 
     return df
 
+def pull_kline(stock,id):
+    # 调用函数获取股票历史单子数据（有天数限制）
+    df = get_history_bill(stock,id)
+    # 保存数据到 csv 文件中
+    df.to_csv(f'{stock}.csv', index=None, encoding='utf-8-sig')
+    print(stock, f'的历史单子数据已保存到文件 {stock}.csv 中')
+
+class Stock():
+    def __init__(self, code, id):
+        self.code = code
+        self.id = id
+
+
+def pull_stocks():
+    # a 股所有股票
+    astockls = ak.stock_info_a_code_name()
+    apath = '/home/lmr/ws/spider_ws/Spider/data/astockls.csv'
+    astockls.to_csv(apath, index=None, encoding='utf-8-sig')
+    print('A股股票列表已保存到 %s 中' % (apath))
+
+    # 上证股票
+    shstockls = ak.stock_info_sh_name_code()
+    shpath = '/home/lmr/ws/spider_ws/Spider/data/shstockls.csv'
+    shstockls.to_csv(shpath, index=None, encoding='utf-8-sig')
+    print('上证股票列表已保存到 %s 中' % (shpath))
+
+    # 深证股票
+    szstockls = ak.stock_info_sz_name_code()
+    szpath = '/home/lmr/ws/spider_ws/Spider/data/szstockls.csv'
+    szstockls.to_csv(szpath, index=None, encoding='utf-8-sig')
+    print('深证股票列表已保存到 %s 中' % (szpath))
+
+def pull_hot_topic():
+    hotrank = ak.stock_hot_rank_em()
+    hrpath = '/home/lmr/ws/spider_ws/Spider/data/hotrank.csv'
+    hotrank.to_csv(hrpath, index=None, encoding='utf-8-sig')
+    print('热门股票列表已保存到 %s 中' % (hrpath))
+
+    hotup = ak.stock_hot_up_em()
+    hupath = '/home/lmr/ws/spider_ws/Spider/data/hotup.csv'
+    hotup.to_csv(hupath, index=None, encoding='utf-8-sig')
+    print('热门上升股票列表已保存到 %s 中' % (hupath))
+
+    hotkeywork = ak.stock_hot_keyword_em()
+    hkpath = '/home/lmr/ws/spider_ws/Spider/data/hotkeywork.csv'
+    hotkeywork.to_csv(hkpath, index=None, encoding='utf-8-sig')
+    print('热门关键词列表已保存到 %s 中' % (hkpath))
 
 if __name__ == "__main__":
-    # 股票代码
-    stock_code = '600519'
-    stock_code = '002261'
-    # 调用函数获取股票历史单子数据（有天数限制）
-    df = get_history_bill(stock_code)
-    # 保存数据到 csv 文件中
-    df.to_csv(f'{stock_code}.csv', index=None, encoding='utf-8-sig')
-    print(stock_code, f'的历史单子数据已保存到文件 {stock_code}.csv 中')
+    # pull_stocks()
+    pull_hot_topic()
