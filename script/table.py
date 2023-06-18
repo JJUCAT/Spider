@@ -79,5 +79,10 @@ def draw_graph(stock):
 
 if __name__ == "__main__":
     # draw_graph('002261') # 拓维
-    draw_graph('002594') # 比亚迪
+    # draw_graph('002594') # 比亚迪
     # draw_graph('000155') # 川能动力
+    # draw_graph('600330') # 天通股份
+    # draw_graph('600602') # 云赛智联
+    # draw_graph('002236') # 大华股份 
+    # draw_graph('002527') # 新时达 
+    # draw_graph('002536') # 飞龙股份

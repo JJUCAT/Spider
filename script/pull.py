@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-
+import strategy
 import akshare as ak
 import numpy as np
 import os
@@ -254,14 +254,27 @@ def pull_sector_stock_flow_rank(sector, days=1):
     print('行业个股资金流向排行已保存到 %s 中' % (fpath))
 
 
-
 if __name__ == "__main__":
     # pull_stocks() # 更新股票列表
-    # pull_hot_topic() # 更新热门信息
+    # pull_hot_topic() # 更新热门
     # pull_realtime() # 更新实时指数
     # pull_history('000001') # 更新各个历史数据
     # pull_senior()
     # pull_flow_single('000001','sh')
     # pull_flow_rank()
     # pull_sector_flow_rank()
-    pull_sector_stock_flow_rank('互联网服务')
+    # pull_sector_stock_flow_rank('互联网服务')
+    
+    # pull_kline('600330', 'h')
+    # pull_kline('600602', 'h')
+    # pull_kline('002236', 's') 
+    # pull_kline('002527', 's') 
+    # pull_kline('002536', 's')
+
+
+    pull_hot_topic() # 更新热门信息
+    stockls = strategy.find_stock_from_hotrank(30, 10) # 获取前 10 价格低于 30 的股票
+
+    pull_realtime() # 更新实时指数
+    stockls = strategy.find_stock_within_PE(stockls, 50) # 筛选合适 PE 股票
+
