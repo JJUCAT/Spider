@@ -7,7 +7,7 @@ import numpy as np
 import os
 import pandas as pd
 import requests
-
+import datetime
 
 def gen_secid(stock_code):
     '''
@@ -138,7 +138,7 @@ class Stock():
         self.code = code
         self.id = id
 
-
+# 更新股票名单
 def pull_stocks():
     # a 股所有股票
     astockls = ak.stock_info_a_code_name()
@@ -158,6 +158,7 @@ def pull_stocks():
     szstockls.to_csv(szpath, index=None, encoding='utf-8-sig')
     print('深证股票列表已保存到 %s 中' % (szpath))
 
+# 获取热门股票，上升榜，热门关键词
 def pull_hot_topic():
     hotrank = ak.stock_hot_rank_em()
     hrpath = '/home/lmr/ws/spider_ws/Spider/data/hotrank.csv'
@@ -174,6 +175,93 @@ def pull_hot_topic():
     hotkeywork.to_csv(hkpath, index=None, encoding='utf-8-sig')
     print('热门关键词列表已保存到 %s 中' % (hkpath))
 
+# 获取所有股票的实时信息
+def pull_realtime():
+    realtime = ak.stock_zh_a_spot_em()
+    rtpath = '/home/lmr/ws/spider_ws/Spider/data/realtime.csv'
+    realtime.to_csv(rtpath, index=None, encoding='utf-8-sig')
+    print('A股实时信息已保存到 %s 中' % (rtpath))
+
+# 获取指定股票最近 100 天的历史数据
+def pull_history(code):
+    today=datetime.datetime.now()
+    end_date=today.strftime('%Y%m%d')
+    start_date=(today-datetime.timedelta(days=100)).strftime('%Y%m%d') # 100 天前的时间
+    print('start_date: %s, end_date: %s' % (start_date, end_date))
+    history = ak.stock_zh_a_hist(symbol=code, period="daily", start_date=start_date, end_date=end_date, adjust="")
+    hpath = '/home/lmr/ws/spider_ws/Spider/data/history/' + code + '.csv'
+    history.to_csv(hpath, index=None, encoding='utf-8-sig')
+    print('%s 股票的历史数据已保存到 %s 中' % (code, hpath))
+
+
+# 获取股票年报，但有问题用不了
+def pull_report():
+    today=datetime.datetime.now().strftime('%Y%m%d')
+    report = ak.stock_yjbb_em(date=today)
+    rpath = '/home/lmr/ws/spider_ws/Spider/data/report.csv'
+    report.to_csv(rpath, index=None, encoding='utf-8-sig')
+    print('A股股票年报已保存到 %s 中' % (rpath))
+
+
+# 获取高管持股情况
+def pull_senior():
+    senior = ak.stock_ggcg_em_df = ak.stock_ggcg_em(symbol="全部")
+    spath = '/home/lmr/ws/spider_ws/Spider/data/senior.csv'
+    senior.to_csv(spath, index=None, encoding='utf-8-sig')
+    print('高管持股信息已保存到 %s 中' % (spath))
+
+# 个股资金流向
+def pull_flow_single(code, market):
+    flow = ak.stock_individual_fund_flow(stock=code, market=market)
+    fpath = '/home/lmr/ws/spider_ws/Spider/data/flow/' + code + '.csv'
+    flow.to_csv(fpath, index=None, encoding='utf-8-sig')
+    print('股票 %s 资金流向已保存到 %s 中' % (code, fpath))
+
+# 资金流向排行
+def pull_flow_rank(days=1):
+    if days <= 1:
+        ind = "今日"
+    else:
+        ind = str(days) + "日"
+    flow = ak.stock_individual_fund_flow_rank(indicator=ind)
+    today=datetime.datetime.now().strftime('%Y%m%d')
+    fpath = '/home/lmr/ws/spider_ws/Spider/data/flowrank/flow_rank_' + str(days) + '日_from_' + today + '.csv'
+    flow.to_csv(fpath, index=None, encoding='utf-8-sig')
+    print('股票资金流向排行已保存到 %s 中' % (fpath))
+
+# 行业资金流向排行
+def pull_sector_flow_rank(days=1):
+    if days <= 1:
+        ind = "今日"
+    else:
+        ind = str(days) + "日"
+    flow = ak.stock_sector_fund_flow_rank(indicator=ind, sector_type="行业资金流")
+    today=datetime.datetime.now().strftime('%Y%m%d')
+    fpath = '/home/lmr/ws/spider_ws/Spider/data/sectorflowrank/sector_flow_rank_' + str(days) + '日_from_' + today + '.csv'
+    flow.to_csv(fpath, index=None, encoding='utf-8-sig')
+    print('行业资金流向排行已保存到 %s 中' % (fpath))
+
+# 行业个股资金流向排行
+def pull_sector_stock_flow_rank(sector, days=1):
+    if days <= 1:
+        ind = "今日"
+    else:
+        ind = str(days) + "日"
+    flow = ak.stock_sector_fund_flow_summary(symbol=sector, indicator=ind)
+    today=datetime.datetime.now().strftime('%Y%m%d')
+    fpath = '/home/lmr/ws/spider_ws/Spider/data/sectorflowrank/sector_stock_flow_rank_' + str(days) + '日_from_' + today + '.csv'
+    flow.to_csv(fpath, index=None, encoding='utf-8-sig')
+    print('行业个股资金流向排行已保存到 %s 中' % (fpath))
+
+
+
 if __name__ == "__main__":
-    # pull_stocks()
-    pull_hot_topic()
+    # pull_stocks() # 更新股票列表
+    # pull_hot_topic() # 更新热门信息
+    # pull_realtime() # 更新实时指数
+    # pull_history('000001') # 更新各个历史数据
+    # pull_senior()
+    # pull_flow_single('000001','sh')
+    # pull_flow_rank()
+    # pull_sector_flow_rank()
+    pull_sector_stock_flow_rank('互联网服务')
